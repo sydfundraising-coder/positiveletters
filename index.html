@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seva Centre Meetings — Dashboard & Tracker</title>
+<style>
+:root{--cream:#EEE9E1;--orange:#ED7D31;--steel:#35617D;--ink:#333;--line:#D8D2C6;--alt:#F6F3EE;--yellow:#FFF7E6;--green:#3f8f5b;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Calibri,Arial,'Segoe UI',sans-serif;line-height:1.45;}
+.wrap{max-width:1240px;margin:0 auto;padding:26px 18px 70px;}
+header{border-bottom:3px solid var(--orange);padding-bottom:14px;margin-bottom:16px;}
+h1{margin:0;color:var(--steel);font-size:24px;font-weight:700;}
+h2{margin:3px 0 0;color:var(--orange);font-size:16px;font-weight:700;}
+.meta{margin:10px 0 0;font-size:13px;color:#5a5a5a;}.meta b{color:var(--steel);}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 4px;}
+.bar .grow{flex:1;}
+select,input[type=text],input[type=number],input[type=date]{font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);}
+label.fld{font-size:12px;color:#666;display:flex;flex-direction:column;gap:3px;}
+button{font-family:inherit;font-size:13px;font-weight:600;padding:7px 13px;border:1px solid var(--steel);background:var(--steel);color:#fff;border-radius:6px;cursor:pointer;}
+button.ghost{background:#fff;color:var(--steel);}
+button.tab{background:#fff;color:var(--steel);border:1px solid var(--line);}
+button.tab.on{background:var(--steel);color:#fff;border-color:var(--steel);}
+.tabs{display:flex;gap:8px;margin-bottom:16px;}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:8px 0 22px;}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-align:center;}
+.kpi .n{font-size:26px;font-weight:700;color:var(--steel);}
+.kpi.o .n{color:var(--orange);}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:3px;}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.ph{background:var(--steel);color:#fff;padding:10px 16px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:9px;}
+.ph .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+th{text-align:left;background:var(--alt);color:var(--steel);font-weight:700;padding:8px 11px;border-bottom:2px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+tbody tr:nth-child(even){background:#faf8f4;}
+.num{text-align:center;font-variant-numeric:tabular-nums;}
+.mini{position:relative;background:#eee4d6;border-radius:4px;height:16px;min-width:60px;}
+.mini>span{position:absolute;left:0;top:0;bottom:0;background:var(--steel);border-radius:4px;}
+.mini.o>span{background:var(--orange);}
+.mini em{position:relative;z-index:1;font-style:normal;font-size:11px;padding-left:6px;line-height:16px;color:#222;}
+.centre{font-weight:700;}.das{font-weight:600;color:var(--steel);}
+.ti{font-weight:400;font-size:10px;color:#999;}
+.ps{font-weight:600;color:var(--orange);}
+.mob{white-space:nowrap;color:#555;font-variant-numeric:tabular-nums;}
+.asm{color:#999;}
+.cx{font-size:11.5px;color:#5a5a5a;line-height:1.5;}
+td input,td select{width:100%;padding:4px 6px;font-size:12px;}
+td.entry{background:var(--yellow);}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.st-Completed{background:#e2efda;color:#3f8f5b;}.st-Scheduled{background:#dcE7f0;color:#35617d;}
+.st-Rescheduled{background:#fde6cf;color:#c77a1e;}.st-Cancelled{background:#f3d6d6;color:#b23b3b;}
+.note{font-size:12px;color:#7a6f5c;background:#f7f1e6;border:1px solid #e6dcc7;border-radius:8px;padding:10px 13px;margin:6px 0 18px;}
+footer{margin-top:26px;font-size:11.5px;color:#8a8a8a;text-align:center;}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr);}}
+@media print{.bar,.tabs,button{display:none!important;}body{background:#fff;}.panel{break-inside:avoid;}}
+</style></head><body><div class="wrap">
+<header>
+<h1>BAPS Swaminarayan Sanstha Australia</h1>
+<h2>Seva Centre Meetings — Dashboard &amp; Tracker</h2>
+<p class="meta"><b>10-day window:</b> Mon 7 Sep – Wed 16 Sep 2026 &nbsp;•&nbsp; <b>33 Seva Centres</b> &nbsp;•&nbsp; meetings scheduled outside each centre's own assembly day</p>
+</header>
+
+<div class="tabs">
+  <button class="tab on" id="tabDash" onclick="showTab('dash')">Dashboard</button>
+  <button class="tab" id="tabTrk" onclick="showTab('trk')">Tracker</button>
+</div>
+
+<div class="bar">
+  <label class="fld">You are (follow-up person)
+    <select id="who" onchange="save();render()"></select></label>
+  <label class="fld">Manage team (comma-separated names)
+    <input type="text" id="team" style="min-width:280px" placeholder="e.g. Ramesh Patel, Nikhil Shah" onchange="setTeam(this.value)"></label>
+  <label class="fld">Filter state
+    <select id="fstate" onchange="render()"><option value="">All states</option></select></label>
+  <label class="fld">Filter status
+    <select id="fstatus" onchange="render()"><option value="">All statuses</option>
+      <option>Scheduled</option><option>Completed</option><option>Rescheduled</option><option>Cancelled</option></select></label>
+  <label class="fld">Search Seva Centre
+    <input type="text" id="fcentre" placeholder="type a centre name…" oninput="render()"></label>
+  <label class="fld">Sort by
+    <select id="sortby" onchange="render()">
+      <option value="date">Meeting date</option>
+      <option value="centre">Seva Centre (A&ndash;Z)</option>
+      <option value="state">State, then centre</option></select></label>
+  <label class="fld"><input type="checkbox" id="mine" onchange="render()"> only my rows</label>
+  <span class="grow"></span>
+  <button class="ghost" onclick="exportCSV()">Export CSV</button>
+  <button class="ghost" onclick="exportJSON()">Export JSON</button>
+  <button class="ghost" onclick="document.getElementById('imp').click()">Import JSON</button>
+  <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(this)">
+</div>
+
+<section id="dash">
+  <div class="kpis" id="kpis"></div>
+  <div class="panel"><div class="ph"><span class="dot"></span>Meetings per State / Territory</div>
+    <table id="tState"></table></div>
+  <div class="panel"><div class="ph"><span class="dot"></span>Meetings per Day</div>
+    <table id="tDay"></table></div>
+  <div class="panel"><div class="ph"><span class="dot"></span>Follow-up Progress by Person</div>
+    <table id="tPerson"></table></div>
+</section>
+
+<section id="trk" style="display:none">
+  <div class="note">Enter results in the highlighted cells after each meeting. Changes save automatically <b>on this device</b>. For shared updates by several people, use the Excel tracker on SharePoint/Teams, or Export/Import JSON to consolidate entries here.</div>
+  <div class="panel"><div class="ph"><span class="dot"></span>Meeting Tracker</div>
+    <div style="overflow-x:auto"><table id="tTrk"></table></div></div>
+</section>
+
+<footer>Generated from Parasabha_Frequencies.xlsx · Assembly day = each Seva Centre's own weekly sabha (Columns G &amp; H). Data on this page is stored locally in your browser.</footer>
+</div>
+<script>
+const ROWS=[{"no": 1, "date": "2026-09-07", "date_disp": "Mon, 07 Sep 2026", "day": "Monday", "centre": "Canberra", "state": "Australian Capital Territory", "das": "Vivek Brahmbhatt", "title": "ANZ-Mandir Coordinator", "mobile": "+61425793437", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 2, "date": "2026-09-07", "date_disp": "Mon, 07 Sep 2026", "day": "Monday", "centre": "Alice Springs", "state": "Northern Territory", "das": "Jigar Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61466389384", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 3, "date": "2026-09-07", "date_disp": "Mon, 07 Sep 2026", "day": "Monday", "centre": "Townsville", "state": "Queensland", "das": "Praduman Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61478407226", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 4, "date": "2026-09-07", "date_disp": "Mon, 07 Sep 2026", "day": "Monday", "centre": "Melbourne North", "state": "Victoria", "das": "Kalpeshkumar Makwana", "title": "ANZ-Mandir Coordinator", "mobile": "+61433178840", "ps_names": ["Jigar Patel"], "ps_mobs": ["+61431435100"], "assembly": "Sunday"}, {"no": 5, "date": "2026-09-08", "date_disp": "Tue, 08 Sep 2026", "day": "Tuesday", "centre": "Albury", "state": "New South Wales", "das": "Yash Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61450807288", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 6, "date": "2026-09-08", "date_disp": "Tue, 08 Sep 2026", "day": "Tuesday", "centre": "Darwin", "state": "Northern Territory", "das": "Ketan Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61416537449", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 7, "date": "2026-09-08", "date_disp": "Tue, 08 Sep 2026", "day": "Tuesday", "centre": "Adelaide", "state": "South Australia", "das": "Rajesh Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61408255461", "ps_names": ["Darshan Chauhan", "Vaibhav Chauhan"], "ps_mobs": ["+61450091281", "+61430009790"], "assembly": "Sunday"}, {"no": 8, "date": "2026-09-08", "date_disp": "Tue, 08 Sep 2026", "day": "Tuesday", "centre": "Melbourne South", "state": "Victoria", "das": "Manish Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61430340121", "ps_names": ["Ronak Patel"], "ps_mobs": ["+61430991028"], "assembly": "Saturday"}, {"no": 9, "date": "2026-09-09", "date_disp": "Wed, 09 Sep 2026", "day": "Wednesday", "centre": "Bathurst", "state": "New South Wales", "das": "Durgesh Nagar", "title": "ANZ-Centre Coordinator", "mobile": "+61450264482", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 10, "date": "2026-09-09", "date_disp": "Wed, 09 Sep 2026", "day": "Wednesday", "centre": "Brisbane", "state": "Queensland", "das": "Ghanshyambhai Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61406045676", "ps_names": ["Vijay Patel"], "ps_mobs": ["+61430119944"], "assembly": "Sunday"}, {"no": 11, "date": "2026-09-09", "date_disp": "Wed, 09 Sep 2026", "day": "Wednesday", "centre": "Berri", "state": "South Australia", "das": "Ronakkumar Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61411741523", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 12, "date": "2026-09-09", "date_disp": "Wed, 09 Sep 2026", "day": "Wednesday", "centre": "Melbourne West", "state": "Victoria", "das": "Mitesh Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61408696977", "ps_names": ["Mayur Brahmbhatt"], "ps_mobs": ["+61430769950"], "assembly": "Sunday"}, {"no": 13, "date": "2026-09-10", "date_disp": "Thu, 10 Sep 2026", "day": "Thursday", "centre": "Gosford", "state": "New South Wales", "das": "Chirag Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61469355222", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 14, "date": "2026-09-10", "date_disp": "Thu, 10 Sep 2026", "day": "Thursday", "centre": "Brisbane North", "state": "Queensland", "das": "Tushar Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61433630660", "ps_names": ["Tushar Patel"], "ps_mobs": ["+61433630660"], "assembly": "Sunday"}, {"no": 15, "date": "2026-09-10", "date_disp": "Thu, 10 Sep 2026", "day": "Thursday", "centre": "Mt Gambier", "state": "South Australia", "das": "Sharad Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61404574267", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 16, "date": "2026-09-10", "date_disp": "Thu, 10 Sep 2026", "day": "Thursday", "centre": "Shepparton", "state": "Victoria", "das": "Rohit Chauhan", "title": "ANZ-Mandir Coordinator", "mobile": "+61430433746", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 17, "date": "2026-09-11", "date_disp": "Fri, 11 Sep 2026", "day": "Friday", "centre": "Griffith", "state": "New South Wales", "das": "Nil Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61434774143", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 18, "date": "2026-09-11", "date_disp": "Fri, 11 Sep 2026", "day": "Friday", "centre": "Cairns", "state": "Queensland", "das": "Dhiraj Gajera", "title": "ANZ-Mandir Coordinator", "mobile": "+61424018003", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 19, "date": "2026-09-11", "date_disp": "Fri, 11 Sep 2026", "day": "Friday", "centre": "Hobart", "state": "Tasmania", "das": "Pratikbhai Darji", "title": "ANZ-Mandir Coordinator", "mobile": "+61430744922", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 20, "date": "2026-09-11", "date_disp": "Fri, 11 Sep 2026", "day": "Friday", "centre": "Perth", "state": "Western Australia", "das": "Ankitkumar Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61433752050", "ps_names": ["Tejasbhai R Patel"], "ps_mobs": ["+61424170938"], "assembly": "Sunday"}, {"no": 21, "date": "2026-09-12", "date_disp": "Sat, 12 Sep 2026", "day": "Saturday", "centre": "Newcastle", "state": "New South Wales", "das": "Rajesh Lakhani", "title": "ANZ-Mandir Coordinator", "mobile": "+61433270237", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 22, "date": "2026-09-12", "date_disp": "Sat, 12 Sep 2026", "day": "Saturday", "centre": "Perth South", "state": "Western Australia", "das": "Vishal Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61437116621", "ps_names": ["Vasant H Patel"], "ps_mobs": ["+61425769345"], "assembly": "Sunday"}, {"no": 23, "date": "2026-09-13", "date_disp": "Sun, 13 Sep 2026", "day": "Sunday", "centre": "Gatton", "state": "Queensland", "das": "Naresh Kugashiya", "title": "ANZ-Mandir Coordinator", "mobile": "+61426241930", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 24, "date": "2026-09-13", "date_disp": "Sun, 13 Sep 2026", "day": "Sunday", "centre": "Launceston", "state": "Tasmania", "das": "Devang Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61470439290", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 25, "date": "2026-09-14", "date_disp": "Mon, 14 Sep 2026", "day": "Monday", "centre": "Sydney", "state": "New South Wales", "das": "Krishnachandra Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61425302187", "ps_names": ["Dhruv Vala", "Bhavesh Patel", "Divyeshbhai Patel", "Bhumipbhai Patel"], "ps_mobs": ["+61431831498", "+61421491094", "+61425215250", "+61425792782"], "assembly": "Sunday"}, {"no": 26, "date": "2026-09-14", "date_disp": "Mon, 14 Sep 2026", "day": "Monday", "centre": "Gold Coast", "state": "Queensland", "das": "Hemal Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61401194160", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 27, "date": "2026-09-14", "date_disp": "Mon, 14 Sep 2026", "day": "Monday", "centre": "Ballarat", "state": "Victoria", "das": "Bhavesh Narola", "title": "ANZ-Centre Coordinator", "mobile": "+61475785218", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 28, "date": "2026-09-15", "date_disp": "Tue, 15 Sep 2026", "day": "Tuesday", "centre": "Wagga Wagga", "state": "New South Wales", "das": "Yagneshkumar Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61403895092", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 29, "date": "2026-09-15", "date_disp": "Tue, 15 Sep 2026", "day": "Tuesday", "centre": "Sunshine Coast", "state": "Queensland", "das": "Harsh Patel", "title": "ANZ-Mandir Coordinator", "mobile": "+61476420700", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 30, "date": "2026-09-15", "date_disp": "Tue, 15 Sep 2026", "day": "Tuesday", "centre": "Geelong", "state": "Victoria", "das": "Yagnik Jadwani", "title": "ANZ-Centre Coordinator", "mobile": "+61425168440", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}, {"no": 31, "date": "2026-09-16", "date_disp": "Wed, 16 Sep 2026", "day": "Wednesday", "centre": "Wollongong", "state": "New South Wales", "das": "Pranav Sharma", "title": "ANZ-Centre Coordinator", "mobile": "+61411199729", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Friday"}, {"no": 32, "date": "2026-09-16", "date_disp": "Wed, 16 Sep 2026", "day": "Wednesday", "centre": "Toowoomba", "state": "Queensland", "das": "Nilesh Kavani", "title": "ANZ-Mandir Coordinator", "mobile": "+61474704301", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Sunday"}, {"no": 33, "date": "2026-09-16", "date_disp": "Wed, 16 Sep 2026", "day": "Wednesday", "centre": "Melbourne East", "state": "Victoria", "das": "Jaimin Patel", "title": "ANZ-Centre Coordinator", "mobile": "+61433750765", "ps_names": ["\u2014"], "ps_mobs": ["\u2014"], "assembly": "Saturday"}], STATES=["Australian Capital Territory", "New South Wales", "Northern Territory", "Queensland", "South Australia", "Tasmania", "Victoria", "Western Australia"], DATES=[{"date": "2026-09-07", "disp": "Mon, 07 Sep 2026", "day": "Monday"}, {"date": "2026-09-08", "disp": "Tue, 08 Sep 2026", "day": "Tuesday"}, {"date": "2026-09-09", "disp": "Wed, 09 Sep 2026", "day": "Wednesday"}, {"date": "2026-09-10", "disp": "Thu, 10 Sep 2026", "day": "Thursday"}, {"date": "2026-09-11", "disp": "Fri, 11 Sep 2026", "day": "Friday"}, {"date": "2026-09-12", "disp": "Sat, 12 Sep 2026", "day": "Saturday"}, {"date": "2026-09-13", "disp": "Sun, 13 Sep 2026", "day": "Sunday"}, {"date": "2026-09-14", "disp": "Mon, 14 Sep 2026", "day": "Monday"}, {"date": "2026-09-15", "disp": "Tue, 15 Sep 2026", "day": "Tuesday"}, {"date": "2026-09-16", "disp": "Wed, 16 Sep 2026", "day": "Wednesday"}];
+const KEY='baps_seva_tracker_v1', TEAMKEY='baps_seva_team_v1', WHOKEY='baps_seva_who_v1';
+const FIELDS=['status','attendees','letters','person','fstatus','updated','notes'];
+let store={}, team=[], who='';
+
+function load(){try{store=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){store={};}
+  try{team=JSON.parse(localStorage.getItem(TEAMKEY))||[];}catch(e){team=[];}
+  try{who=localStorage.getItem(WHOKEY)||'';}catch(e){who='';}}
+function save(){who=document.getElementById('who').value;
+  try{localStorage.setItem(KEY,JSON.stringify(store));localStorage.setItem(TEAMKEY,JSON.stringify(team));localStorage.setItem(WHOKEY,who);}catch(e){}}
+function rec(c){return store[c]||(store[c]={status:'',attendees:'',letters:'',person:'',fstatus:'',updated:'',notes:''});}
+function setTeam(v){team=v.split(',').map(s=>s.trim()).filter(Boolean);save();buildSelectors();render();}
+
+function buildSelectors(){
+  const who$=document.getElementById('who');
+  who$.innerHTML='<option value="">— select —</option>'+team.map(n=>`<option ${n===who?'selected':''}>${n}</option>`).join('');
+  document.getElementById('team').value=team.join(', ');
+  const fs=document.getElementById('fstate');
+  if(fs.options.length<=1) STATES.forEach(s=>fs.add(new Option(s,s)));
+}
+function num(v){v=parseInt(v);return isNaN(v)?0:v;}
+
+function filtered(){
+  const st=document.getElementById('fstate').value, ss=document.getElementById('fstatus').value,
+        mine=document.getElementById('mine').checked, me=document.getElementById('who').value,
+        fc=(document.getElementById('fcentre').value||'').trim().toLowerCase(),
+        sb=document.getElementById('sortby').value;
+  let out=ROWS.filter(r=>{const e=rec(r.centre);
+    if(st&&r.state!==st)return false;
+    if(ss&&e.status!==ss)return false;
+    if(mine&&me&&e.person!==me)return false;
+    if(fc&&!r.centre.toLowerCase().includes(fc))return false;
+    return true;});
+  out.sort((a,b)=> sb==='centre' ? a.centre.localeCompare(b.centre)
+    : sb==='state' ? (a.state.localeCompare(b.state)||a.centre.localeCompare(b.centre))
+    : (a.date.localeCompare(b.date)||a.state.localeCompare(b.state)||a.centre.localeCompare(b.centre)));
+  return out;
+}
+
+function render(){
+  // KPIs
+  const total=ROWS.length;
+  let done=0,att=0,let_=0;
+  ROWS.forEach(r=>{const e=rec(r.centre);if(e.status==='Completed')done++;att+=num(e.attendees);let_+=num(e.letters);});
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('kpis').innerHTML=[
+    ['Total Meetings',total,''],['Completed',done,'o'],['Total Attendees',att,''],
+    ['Support Letters',let_,'o'],['Completion',pct+'%','']]
+    .map(k=>`<div class="kpi ${k[2]}"><div class="n">${k[1]}</div><div class="l">${k[0]}</div></div>`).join('');
+
+  // per state
+  const maxS=Math.max(1,...STATES.map(s=>ROWS.filter(r=>r.state===s).length));
+  let h='<thead><tr><th>State / Territory</th><th>Meetings</th><th class="num">Completed</th><th class="num">Attendees</th><th class="num">Letters</th><th class="num">Completion</th></tr></thead><tbody>';
+  STATES.forEach(s=>{const rs=ROWS.filter(r=>r.state===s);const c=rs.length;
+    let dn=0,a=0,l=0;rs.forEach(r=>{const e=rec(r.centre);if(e.status==='Completed')dn++;a+=num(e.attendees);l+=num(e.letters);});
+    h+=`<tr><td>${s}</td><td><div class="mini"><span style="width:${c/maxS*100}%"></span><em>${c}</em></div></td><td class="num">${dn}</td><td class="num">${a}</td><td class="num">${l}</td><td class="num">${c?Math.round(dn/c*100):0}%</td></tr>`;});
+  h+=`<tr style="font-weight:700;background:#f3ead9"><td>TOTAL</td><td class="num">${total}</td><td class="num">${done}</td><td class="num">${att}</td><td class="num">${let_}</td><td class="num">${pct}%</td></tr></tbody>`;
+  document.getElementById('tState').innerHTML=h;
+
+  // per day
+  const maxD=Math.max(1,...DATES.map(d=>ROWS.filter(r=>r.date===d.date).length));
+  h='<thead><tr><th>Date</th><th>Day</th><th>Meetings</th><th>Seva Centres</th><th class="num">Completed</th><th class="num">Attendees</th></tr></thead><tbody>';
+  DATES.forEach(d=>{const rs=ROWS.filter(r=>r.date===d.date);const c=rs.length;
+    let dn=0,a=0;rs.forEach(r=>{const e=rec(r.centre);if(e.status==='Completed')dn++;a+=num(e.attendees);});
+    const names=rs.map(r=>r.centre).sort().join(', ');
+    h+=`<tr><td>${d.disp.replace(/^[A-Za-z]+, /,'')}</td><td>${d.day}</td><td><div class="mini o"><span style="width:${c/maxD*100}%"></span><em>${c}</em></div></td><td class="cx">${names}</td><td class="num">${dn}</td><td class="num">${a}</td></tr>`;});
+  h+='</tbody>';document.getElementById('tDay').innerHTML=h;
+
+  // per person
+  h='<thead><tr><th>Follow-up Person</th><th class="num">Assigned</th><th class="num">Follow-up Done</th><th class="num">Meetings Done</th><th class="num">Letters</th></tr></thead><tbody>';
+  const people=team.length?team:[...new Set(ROWS.map(r=>rec(r.centre).person).filter(Boolean))];
+  if(!people.length) h+='<tr><td colspan="5" style="color:#999">Add team names above to see per-person progress.</td></tr>';
+  people.forEach(p=>{const rs=ROWS.filter(r=>rec(r.centre).person===p);
+    let fd=0,md=0,l=0;rs.forEach(r=>{const e=rec(r.centre);if(e.fstatus==='Completed')fd++;if(e.status==='Completed')md++;l+=num(e.letters);});
+    h+=`<tr><td>${p}</td><td class="num">${rs.length}</td><td class="num">${fd}</td><td class="num">${md}</td><td class="num">${l}</td></tr>`;});
+  h+='</tbody>';document.getElementById('tPerson').innerHTML=h;
+
+  // tracker
+  const opts=(sel,arr)=>['',...arr].map(o=>`<option ${o===sel?'selected':''}>${o}</option>`).join('');
+  const teamOpts=sel=>'<option value=""></option>'+team.map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
+  let t='<thead><tr><th>Date</th><th>Seva Centre</th><th>State</th><th>Das (Coordinator)</th><th>PS Sanchalak</th><th>PS Mobile</th><th>Own Assembly</th><th>Status</th><th>Attend.</th><th>Letters</th><th>Follow-up Person</th><th>Follow-up</th><th>Notes</th></tr></thead><tbody>';
+  filtered().forEach(r=>{const e=rec(r.centre);
+    t+=`<tr>
+      <td class="mob">${r.date_disp.replace(/^[A-Za-z]+, /,'')}</td>
+      <td class="centre">${r.centre}</td><td>${r.state}</td>
+      <td class="das">${r.das}<div class="ti">${r.title}</div><div class="mob">${r.mobile}</div></td>
+      <td class="ps">${r.ps_names.join('<br>')}</td><td class="mob">${r.ps_mobs.join('<br>')}</td>
+      <td class="asm">${r.assembly}</td>
+      <td class="entry"><select onchange="upd('${r.centre}','status',this.value)">${opts(e.status,['Scheduled','Completed','Rescheduled','Cancelled'])}</select></td>
+      <td class="entry"><input type="number" min="0" value="${e.attendees}" onchange="upd('${r.centre}','attendees',this.value)"></td>
+      <td class="entry"><input type="number" min="0" value="${e.letters}" onchange="upd('${r.centre}','letters',this.value)"></td>
+      <td class="entry"><select onchange="upd('${r.centre}','person',this.value)">${teamOpts(e.person)}</select></td>
+      <td class="entry"><select onchange="upd('${r.centre}','fstatus',this.value)">${opts(e.fstatus,['Pending','In Progress','Completed','No Response'])}</select></td>
+      <td class="entry"><input type="text" value="${(e.notes||'').replace(/"/g,'&quot;')}" onchange="upd('${r.centre}','notes',this.value)"></td>
+    </tr>`;});
+  t+='</tbody>';document.getElementById('tTrk').innerHTML=t;
+}
+function upd(centre,field,val){const e=rec(centre);e[field]=val;e.updated=new Date().toISOString().slice(0,10);save();render();}
+function showTab(x){document.getElementById('dash').style.display=x==='dash'?'':'none';
+  document.getElementById('trk').style.display=x==='trk'?'':'none';
+  document.getElementById('tabDash').classList.toggle('on',x==='dash');
+  document.getElementById('tabTrk').classList.toggle('on',x==='trk');}
+function exportCSV(){const H=['No','Date','Day','Seva Centre','State','Das','Coordinator Mobile','PS Sanchalak','PS Mobile','Own Assembly','Status','Attendees','Support Letters','Follow-up Person','Follow-up Status','Last Updated','Notes'];
+  const lines=[H.join(',')];ROWS.forEach(r=>{const e=rec(r.centre);
+    const row=[r.no,r.date_disp,r.day,r.centre,r.state,r.das,r.mobile,r.ps_names.join(' | '),r.ps_mobs.join(' | '),r.assembly,e.status,e.attendees,e.letters,e.person,e.fstatus,e.updated,e.notes]
+      .map(x=>`"${String(x==null?'':x).replace(/"/g,'""')}"`);lines.push(row.join(','));});
+  dl(lines.join('\n'),'Seva_Centre_Tracker.csv','text/csv');}
+function exportJSON(){dl(JSON.stringify({store,team},null,2),'Seva_Centre_Tracker.json','application/json');}
+function importJSON(inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const o=JSON.parse(rd.result);
+    if(o.store)Object.keys(o.store).forEach(c=>{const s=rec(c);FIELDS.forEach(f=>{if(o.store[c][f])s[f]=o.store[c][f];});});
+    if(o.team)o.team.forEach(n=>{if(!team.includes(n))team.push(n);});
+    save();buildSelectors();render();alert('Imported and merged.');}catch(e){alert('Invalid JSON file.');}};
+  rd.readAsText(f);inp.value='';}
+function dl(txt,name,mime){const b=new Blob([txt],{type:mime});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+load();buildSelectors();render();
+</script></body></html>
